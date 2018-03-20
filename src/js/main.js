@@ -29,6 +29,7 @@ var PreloaderScene = {
     this.game.load.json('level:1', 'data/level01.json');
 
     this.game.load.json('level:100', 'data/level_m.json');
+    this.game.load.json('level:101', 'data/level_e.json');
 
     this.game.load.image('font:numbers', 'images/numbers.png');
 

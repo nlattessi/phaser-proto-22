@@ -7,6 +7,7 @@ var HeroSelectState = require('./heroselect.js');
 
 var BootScene = {
   preload: function () {
+    this.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
     // load here assets required for the loading screen
     this.game.load.image('preloader_bar', 'images/preloader_bar.png');
   },
@@ -38,6 +39,7 @@ var PreloaderScene = {
     this.game.load.json('level:2', 'data/level_a.json');
     this.game.load.json('level:3', 'data/level_m.json');
     this.game.load.json('level:4', 'data/level_o.json');
+    this.game.load.json('level:5', 'data/level_end.json');
 
     this.game.load.image('font:numbers', 'images/numbers.png');
 
@@ -69,11 +71,18 @@ var PreloaderScene = {
 
     this.game.load.image("hero_stopped", "images/hero_stopped.png");
     this.game.load.image("heroine_stopped", "images/heroine_stopped.png");
+    this.game.load.spritesheet('baby', 'images/baby.png', 18, 21);
+
+    this.game.load.image('mountains-back', 'images/mountains-back.png');
+		this.game.load.image('mountains-mid1', 'images/mountains-mid1.png');
+		this.game.load.image('mountains-mid2', 'images/mountains-mid2.png');
+		this.game.load.image('sun', 'images/sun.png');
+		this.game.load.image('moon', 'images/moon.png');
   },
 
   create: function () {
-    // this.game.state.start('heroSelect', true, false);
-    this.game.state.start('play', true, false, {level: 0});
+    this.game.state.start('heroSelect', true, false);
+    // this.game.state.start('play', true, false, {level: 0});
   }
 };
 

@@ -44,7 +44,7 @@ HeroSelectState.update = function () {
         this.hero.alpha = 0.5
         this.heroine.alpha = 1
     } else if (this.keys.enter.isDown) {
-        this.game.state.start('play', true, false, { level: 100, heroSelected: this.selected });
+        this.game.state.start('play', true, false, { level: 5, heroSelected: this.selected });
     }
 
 }

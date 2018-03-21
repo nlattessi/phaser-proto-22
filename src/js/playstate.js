@@ -2,10 +2,11 @@
 
 var Hero = require('./hero.js');
 var Spider = require('./spider.js');
+var DayCycle = require('./daycycle.js');
 
 var PlayState = {};
 
-const LEVEL_COUNT = 4;
+const LEVEL_COUNT = 5;
 
 PlayState.init = function (data) {
   this.keys = this.game.input.keyboard.addKeys({
@@ -16,16 +17,71 @@ PlayState.init = function (data) {
 
   this.coinPickupCount = 0;
   this.hasKey = false;
-  // this.level = (data.level || 0) % LEVEL_COUNT;
-  this.level = 4; // remove
+  this.level = (data.level || 0) % LEVEL_COUNT;
+  // this.level = 5; // remove
 
   this.heroSelected = data.heroSelected || 'hero';
 
-  this.game.sound.mute = true; // remove
+  // this.game.sound.mute = true; // remove
+
+  if (this.level === 5) {
+    this.endLevel = true;
+  }
 
 };
 
 PlayState.create = function () {
+
+  if (this.endLevel) {
+    this.game.stage.backgroundColor = '#000';
+
+    this.dayCycle = new DayCycle(this.game, 5000);
+
+
+    let bgBitMap = this.game.add.bitmapData(this.game.width, this.game.height);
+
+    bgBitMap.ctx.rect(0, 0, this.game.width, this.game.height);
+    bgBitMap.ctx.fillStyle = '#b2ddc8';
+    bgBitMap.ctx.fill();
+
+    this.backgroundSprite = this.game.add.sprite(0, 0, bgBitMap);
+
+    this.sunSprite = this.game.add.sprite(50, -250, 'sun');
+    this.moonSprite = this.game.add.sprite(this.game.width - (this.game.width / 4), this.game.height + 500, 'moon');
+
+    this.mountainsBack = this.game.add.tileSprite(0,
+      this.game.height - this.game.cache.getImage('mountains-back').height,
+      this.game.width,
+      this.game.cache.getImage('mountains-back').height,
+      'mountains-back'
+    );
+
+    this.mountainsMid1 = this.game.add.tileSprite(0,
+      this.game.height - this.game.cache.getImage('mountains-mid1').height,
+      this.game.width,
+      this.game.cache.getImage('mountains-mid1').height,
+      'mountains-mid1'
+    );
+
+    this.mountainsMid2 = this.game.add.tileSprite(0,
+      this.game.height - this.game.cache.getImage('mountains-mid2').height,
+      this.game.width,
+      this.game.cache.getImage('mountains-mid2').height,
+      'mountains-mid2'
+    );
+
+    let backgroundSprites = [
+      { sprite: this.backgroundSprite, from: 0x1f2a27, to: 0xB2DDC8 },
+      { sprite: this.mountainsBack, from: 0x2f403b, to: 0x96CCBB },
+      { sprite: this.mountainsMid1, from: 0x283632, to: 0x8BBCAC },
+      { sprite: this.mountainsMid2, from: 0x202b28, to: 0x82AD9D }
+    ];
+
+    this.dayCycle.initShading(backgroundSprites);
+    this.dayCycle.initSun(this.sunSprite);
+    this.dayCycle.initMoon(this.moonSprite);
+  }
+
   // fade in (from black)
   this.camera.flash('#000000');
 
@@ -41,21 +97,58 @@ PlayState.create = function () {
   // this.bgm.loopFull();
 
   // create level entities and decoration
-  this.game.add.image(0, 0, 'background');
+  if (!this.endLevel) {
+
+    this.background = this.game.add.image(0, 0, 'background');
+  }
   this._loadLevel(this.game.cache.getJSON(`level:${this.level}`));
 
   // create UI score boards
-  this._createHud();
+  if (!this.endLevel) {
+    this._createHud();
+  }
 
   if (this.doorEnter) {
     this.hero.freeze();
     this.hero.alpha = 0;
     this.game.add.tween(this.hero)
       .to({ x: this.doorEnter.x + 22, alpha: 1 }, 500, null, true)
-      .onComplete.addOnce(() => this.hero.unfreeze(), this);
+      .onComplete.addOnce(() => {
+        this.hero.unfreeze();
+
+        if (this.endLevel) {
+          this.runEndLevel();
+        } else {
+          // this.hero.unfreeze();
+        }
+      }, this);
   }
 
+  if (this.endLevel) {
+    let otherHeroKey = 'heroine';
+    if (this.heroSelected === 'heroine') {
+      otherHeroKey = 'hero'
+    }
+    this.otherHero = new Hero(this.game, 840, 525, otherHeroKey);
+    this.game.add.existing(this.otherHero);
 
+    this.baby = new Hero(this.game, 900, 530, 'baby');
+    this.game.add.existing(this.baby);
+    // this.babyHero.anchor.setTo(0.5, 0.5)
+    this.baby.scale.setTo(1.25, 1.25)
+  }
+};
+
+PlayState.runEndLevel = function () {
+
+  this.hero.move(1, 150);
+  // this.hero.move(1, 500); // remove
+
+  this.otherHero.move(-1, 120);
+  // this.otherHero.move(-1, 500); // remove
+
+  this.baby.move(-1, 100);
+  // this.baby.move(-1, 500); // remove
 };
 
 PlayState.update = function () {
@@ -63,6 +156,9 @@ PlayState.update = function () {
   this._handleInput();
 
   // update scoreboards
+  if (this.endLevel) {
+    return;
+  }
   this.coinFont.text = `x${this.game.coins}`;
   this.keyIcon.frame = this.hasKey ? 1 : 0;
 };
@@ -75,6 +171,14 @@ PlayState._handleCollisions = function () {
   this.game.physics.arcade.collide(this.spiders, this.platforms);
   this.game.physics.arcade.collide(this.spiders, this.enemyWalls);
   this.game.physics.arcade.collide(this.hero, this.platforms);
+
+  if (this.otherHero) {
+    this.game.physics.arcade.collide(this.otherHero, this.platforms);
+  }
+
+  if (this.baby) {
+    this.game.physics.arcade.collide(this.baby, this.platforms);
+  }
 
   // hero vs coins (pick up)
   this.game.physics.arcade.overlap(this.hero, this.coins, this._onHeroVsCoin,
@@ -94,6 +198,75 @@ PlayState._handleCollisions = function () {
 };
 
 PlayState._handleInput = function () {
+
+  if (this.endLevel) {
+
+    if (this.hero.x >= 400) {
+      this.hero.move(0);
+      this.hero.doneMove = true;
+    }
+
+    if (this.otherHero.x <= 440) {
+      this.otherHero.move(0);
+      this.otherHero.doneMove = true;
+    }
+
+    if (this.baby.x <= 470) {
+      this.baby.move(0);
+      this.baby.doneMove = true;
+    }
+
+    if (this.hero.doneMove && this.otherHero.doneMove && this.baby.doneMove) {
+
+
+      if (this.hero.canJump()) {
+        this.hero.jump();
+      }
+
+      if (this.otherHero.canJump()) {
+        this.otherHero.jump(300);
+      }
+
+      if (this.baby.canJump()) {
+        this.baby.jump(400);
+      }
+
+      if (this.textsShown) {
+        return
+      }
+
+      var text1 = this.game.add.text(this.game.width / 2, this.game.height / 2 - 50, "FELIZ ANIVERSARIO!", { font: "48px Arial", fill: "#ffffff" });
+      text1.anchor.set(0.5);
+      text1.alpha = 0;
+
+      var text2 = this.game.add.text(this.game.width / 2, this.game.height / 2 + 10, "Gracias por tanto amor en estos primeros 10 años!", { font: "36px Arial", fill: "#DB7093" });
+      text2.anchor.set(0.5);
+      text2.alpha = 0;
+
+      var text3 = this.game.add.text(this.game.width / 2, this.game.height / 2 + 70, "TE AMO!!!", { font: "24px Arial", fill: "#DC143C" });
+      text3.anchor.set(0.5);
+      text3.alpha = 0;
+
+      this.game.add.tween(text1).to( { alpha: 1 }, 1000, "Linear", true)
+        .onComplete.addOnce(() => {
+
+          this.game.add.tween(text2).to( { alpha: 1 }, 1000, "Linear", true)
+          .onComplete.addOnce(() => {
+
+            this.game.add.tween(text3).to( { alpha: 1 }, 1000, "Linear", true)
+            .onComplete.addOnce(() => {
+              this.textsShown = true
+            }, this)
+
+          }, this);
+
+        }, this)
+
+    }
+
+    return;
+  }
+
   if (this.keys.left.isDown) { // move hero left
     this.hero.move(-1);
   }
@@ -286,7 +459,7 @@ PlayState._spawnKey = function (x, y) {
     .loop()
     .start();
 
-  // this.key.visible = false; // remover
+  this.key.visible = false; // remover
   this.key.body.enable = false;
 };
 

@@ -1,5 +1,8 @@
 'use strict';
 
+const SPEED = 200;
+const JUMP_SPEED = 400;
+
 function Hero(game, x, y, key) {
     // call Phaser.Sprite constructor
     Phaser.Sprite.call(this, game, x, y, key);
@@ -23,12 +26,13 @@ function Hero(game, x, y, key) {
 Hero.prototype = Object.create(Phaser.Sprite.prototype);
 Hero.prototype.constructor = Hero;
 
-Hero.prototype.move = function (direction) {
+Hero.prototype.move = function (direction, speed) {
     // guard
     if (this.isFrozen) { return; }
 
-    const SPEED = 200;
-    this.body.velocity.x = direction * SPEED;
+    const _speed = speed || SPEED;
+
+    this.body.velocity.x = direction * _speed;
 
     // update image flipping & animations
     if (this.body.velocity.x < 0) {
@@ -39,17 +43,23 @@ Hero.prototype.move = function (direction) {
     }
 };
 
-Hero.prototype.jump = function () {
-    const JUMP_SPEED = 400;
+Hero.prototype.jump = function (jumpSpeed) {
+
+    const _jumpSpeed = jumpSpeed || JUMP_SPEED;
+
     let canJump = this.body.touching.down && this.alive && !this.isFrozen;
 
     if (canJump || this.isBoosting) {
-        this.body.velocity.y = -JUMP_SPEED;
+        this.body.velocity.y = -_jumpSpeed;
         this.isBoosting = true;
     }
 
     return canJump;
 };
+
+Hero.prototype.canJump = function () {
+    return this.body.touching.down && this.alive && !this.isFrozen;
+}
 
 Hero.prototype.stopJumpBoost = function () {
     this.isBoosting = false;

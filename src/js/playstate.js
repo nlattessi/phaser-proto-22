@@ -5,7 +5,7 @@ var Spider = require('./spider.js');
 
 var PlayState = {};
 
-const LEVEL_COUNT = 2;
+const LEVEL_COUNT = 4;
 
 PlayState.init = function (data) {
   this.keys = this.game.input.keyboard.addKeys({
@@ -17,7 +17,7 @@ PlayState.init = function (data) {
   this.coinPickupCount = 0;
   this.hasKey = false;
   // this.level = (data.level || 0) % LEVEL_COUNT;
-  this.level = 2; // remove
+  this.level = 4; // remove
 
   this.heroSelected = data.heroSelected || 'hero';
 
@@ -63,7 +63,7 @@ PlayState.update = function () {
   this._handleInput();
 
   // update scoreboards
-  this.coinFont.text = `x${this.coinPickupCount}`;
+  this.coinFont.text = `x${this.game.coins}`;
   this.keyIcon.frame = this.hasKey ? 1 : 0;
 };
 
@@ -125,10 +125,15 @@ PlayState._onHeroVsCoin = function (hero, coin) {
   this.sfx.coin.play();
   coin.kill();
   this.coinPickupCount++;
+  this.game.coins++;
 
   if (this.coinPickupCount === 2) {
     this.key.visible = true;
     this.key.body.enable = true;
+
+    if (this.platformwillBeDisabled) {
+      this.platformwillBeDisabled.body.enable = false;
+    }
   }
 
 };
@@ -234,6 +239,10 @@ PlayState._spawnPlatform = function (platform) {
   sprite.body.allowGravity = false;
   sprite.body.immovable = true;
 
+  if (platform.willBeDisabled) {
+    this.platformwillBeDisabled = sprite;
+  }
+
   // spawn invisible walls at each side, only detectable by enemies
   this._spawnEnemyWall(platform.x, platform.y, 'left');
   this._spawnEnemyWall(platform.x + sprite.width, platform.y, 'right');
@@ -277,7 +286,7 @@ PlayState._spawnKey = function (x, y) {
     .loop()
     .start();
 
-  // this.key.visible = false;
+  // this.key.visible = false; // remover
   this.key.body.enable = false;
 };
 

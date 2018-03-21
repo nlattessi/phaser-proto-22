@@ -20,6 +20,8 @@ var BootScene = {
 var PreloaderScene = {
   init: function () {
     this.game.renderer.renderSession.roundPixels = true;
+
+    this.game.coins = 0;
   },
 
   preload: function () {
@@ -34,6 +36,8 @@ var PreloaderScene = {
     this.game.load.json('level:0', 'data/level_t.json');
     this.game.load.json('level:1', 'data/level_e.json');
     this.game.load.json('level:2', 'data/level_a.json');
+    this.game.load.json('level:3', 'data/level_m.json');
+    this.game.load.json('level:4', 'data/level_o.json');
 
     this.game.load.image('font:numbers', 'images/numbers.png');
 
@@ -69,7 +73,7 @@ var PreloaderScene = {
 
   create: function () {
     // this.game.state.start('heroSelect', true, false);
-    this.game.state.start('play', true, false, {level: 100});
+    this.game.state.start('play', true, false, {level: 0});
   }
 };
 

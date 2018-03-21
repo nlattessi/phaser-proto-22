@@ -1,0 +1,43 @@
+{
+    "platforms": [
+        {"image": "ground", "x": 0, "y": 546},
+
+        {"image": "grass:1x1", "x": 345, "y": 200},
+        {"image": "grass:2x1", "x": 420, "y": 200, "willBeDisabled": true},
+        {"image": "grass:1x1", "x": 535, "y": 200},
+
+
+        {"image": "grass:6x1", "x": 330, "y": 500},
+
+
+        {"image": "grass:1x1", "x": 120, "y": 480},
+
+        {"image": "grass:1x1", "x": 800, "y": 480},
+
+        {"image": "grass:1x1", "x": 275, "y": 480},
+        {"image": "grass:1x1", "x": 260, "y": 420},
+        {"image": "grass:1x1", "x": 255, "y": 360},
+        {"image": "grass:1x1", "x": 275, "y": 300},
+        {"image": "grass:1x1", "x": 290, "y": 240},
+
+        {"image": "grass:1x1", "x": 600, "y": 480},
+        {"image": "grass:1x1", "x": 615, "y": 420},
+        {"image": "grass:1x1", "x": 630, "y": 360},
+        {"image": "grass:1x1", "x": 615, "y": 300},
+        {"image": "grass:1x1", "x": 600, "y": 240}
+
+
+    ],
+    "decoration": [
+    ],
+    "coins": [
+        {"x": 230, "y": 340},
+        {"x": 700, "y": 340}
+    ],
+    "hero": {"x": 50, "y": 525},
+    "spiders": [
+    ],
+    "door": {"x": 560, "y": 500},
+    "doorEnter": {"x": 50, "y": 546},
+    "key": {"x": 460, "y": 150}
+}

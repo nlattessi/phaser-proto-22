@@ -2,6 +2,9 @@
 
 var PlayState = require('./playstate.js');
 
+var HeroSelectState = require('./heroselect.js');
+
+
 var BootScene = {
   preload: function () {
     // load here assets required for the loading screen
@@ -25,11 +28,12 @@ var PreloaderScene = {
     this.load.setPreloadSprite(this.loadingBar);
 
     // TODO: load here the assets for the game
-    this.game.load.json('level:0', 'data/level00.json');
-    this.game.load.json('level:1', 'data/level01.json');
+    // this.game.load.json('level:0', 'data/level00.json');
+    // this.game.load.json('level:1', 'data/level01.json');
 
-    this.game.load.json('level:100', 'data/level_m.json');
-    this.game.load.json('level:101', 'data/level_e.json');
+    this.game.load.json('level:0', 'data/level_t.json');
+    this.game.load.json('level:1', 'data/level_e.json');
+    this.game.load.json('level:2', 'data/level_a.json');
 
     this.game.load.image('font:numbers', 'images/numbers.png');
 
@@ -58,20 +62,25 @@ var PreloaderScene = {
     this.game.load.audio('sfx:stomp', 'audio/stomp.wav');
     this.game.load.audio('sfx:door', 'audio/door.wav');
     this.game.load.audio('bgm', ['audio/bgm.mp3', 'audio/bgm.ogg']);
+
+    this.game.load.image("hero_stopped", "images/hero_stopped.png");
+    this.game.load.image("heroine_stopped", "images/heroine_stopped.png");
   },
 
   create: function () {
-    this.game.state.start('play', true, false, {level: 0});
+    // this.game.state.start('heroSelect', true, false);
+    this.game.state.start('play', true, false, {level: 100});
   }
 };
 
 
 window.onload = function () {
-  var game = new Phaser.Game(960, 600, Phaser.AUTO, 'game');
+  var game = new Phaser.Game(960, 600, Phaser.CANVAS, 'game');
 
   game.state.add('boot', BootScene);
   game.state.add('preloader', PreloaderScene);
   game.state.add('play', PlayState);
+  game.state.add('heroSelect', HeroSelectState);
 
   game.state.start('boot');
 };

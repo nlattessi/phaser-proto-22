@@ -5,7 +5,7 @@ var Spider = require('./spider.js');
 
 var PlayState = {};
 
-const LEVEL_COUNT = 100;
+const LEVEL_COUNT = 2;
 
 PlayState.init = function (data) {
   this.keys = this.game.input.keyboard.addKeys({
@@ -17,7 +17,12 @@ PlayState.init = function (data) {
   this.coinPickupCount = 0;
   this.hasKey = false;
   // this.level = (data.level || 0) % LEVEL_COUNT;
-  this.level = 101;
+  this.level = 2; // remove
+
+  this.heroSelected = data.heroSelected || 'hero';
+
+  this.game.sound.mute = true; // remove
+
 };
 
 PlayState.create = function () {
@@ -32,7 +37,7 @@ PlayState.create = function () {
     stomp: this.game.add.audio('sfx:stomp'),
     door: this.game.add.audio('sfx:door')
   };
-  // this.bgm = this.game.add.audio('bgm');
+  this.bgm = this.game.add.audio('bgm');
   // this.bgm.loopFull();
 
   // create level entities and decoration
@@ -41,6 +46,16 @@ PlayState.create = function () {
 
   // create UI score boards
   this._createHud();
+
+  if (this.doorEnter) {
+    this.hero.freeze();
+    this.hero.alpha = 0;
+    this.game.add.tween(this.hero)
+      .to({ x: this.doorEnter.x + 22, alpha: 1 }, 500, null, true)
+      .onComplete.addOnce(() => this.hero.unfreeze(), this);
+  }
+
+
 };
 
 PlayState.update = function () {
@@ -110,6 +125,12 @@ PlayState._onHeroVsCoin = function (hero, coin) {
   this.sfx.coin.play();
   coin.kill();
   this.coinPickupCount++;
+
+  if (this.coinPickupCount === 2) {
+    this.key.visible = true;
+    this.key.body.enable = true;
+  }
+
 };
 
 PlayState._onHeroVsEnemy = function (hero, enemy) {
@@ -181,6 +202,12 @@ PlayState._loadLevel = function (data) {
   this._spawnKey(data.key.x, data.key.y);
   this._spawnDoor(data.door.x, data.door.y);
 
+  if (data.doorEnter) {
+    this.doorEnter = this.bgDecoration.create(data.doorEnter.x, data.doorEnter.y, 'door');
+    this.doorEnter.frame = 1
+    this.doorEnter.anchor.setTo(0.5, 1);
+  }
+
   // enable gravity
   const GRAVITY = 1200;
   this.game.physics.arcade.gravity.y = GRAVITY;
@@ -194,7 +221,7 @@ PlayState._spawnCharacters = function (data) {
   }, this);
 
   // spawn hero
-  this.hero = new Hero(this.game, data.hero.x, data.hero.y);
+  this.hero = new Hero(this.game, data.hero.x, data.hero.y, this.heroSelected);
   this.game.add.existing(this.hero);
 };
 
@@ -249,6 +276,9 @@ PlayState._spawnKey = function (x, y) {
     .yoyo(true)
     .loop()
     .start();
+
+  // this.key.visible = false;
+  this.key.body.enable = false;
 };
 
 PlayState._spawnDoor = function (x, y) {

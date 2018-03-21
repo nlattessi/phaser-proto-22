@@ -1,8 +1,8 @@
 'use strict';
 
-function Hero(game, x, y) {
+function Hero(game, x, y, key) {
     // call Phaser.Sprite constructor
-    Phaser.Sprite.call(this, game, x, y, 'heroine');
+    Phaser.Sprite.call(this, game, x, y, key);
 
     // anchor
     this.anchor.set(0.5, 0.5);
@@ -71,6 +71,11 @@ Hero.prototype.update = function () {
 Hero.prototype.freeze = function () {
     this.body.enable = false;
     this.isFrozen = true;
+};
+
+Hero.prototype.unfreeze = function () {
+    this.body.enable = true;
+    this.isFrozen = false;
 };
 
 Hero.prototype.die = function () {

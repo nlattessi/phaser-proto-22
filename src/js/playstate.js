@@ -6,7 +6,7 @@ var DayCycle = require('./daycycle.js');
 
 var PlayState = {};
 
-const LEVEL_COUNT = 5;
+const LEVEL_COUNT = 6;
 
 PlayState.init = function (data) {
   this.keys = this.game.input.keyboard.addKeys({
@@ -19,6 +19,10 @@ PlayState.init = function (data) {
   this.hasKey = false;
   this.level = (data.level || 0) % LEVEL_COUNT;
   // this.level = 5; // remove
+
+  // if (this.level === 0) {
+  //   this.level = 4;
+  // }
 
   this.heroSelected = data.heroSelected || 'hero';
 
@@ -94,7 +98,7 @@ PlayState.create = function () {
     door: this.game.add.audio('sfx:door')
   };
   this.bgm = this.game.add.audio('bgm');
-  // this.bgm.loopFull();
+  this.bgm.loopFull();
 
   // create level entities and decoration
   if (!this.endLevel) {
@@ -349,7 +353,8 @@ PlayState._goToNextLevel = function () {
   this.camera.onFadeComplete.addOnce(function () {
     // change to next level
     this.game.state.restart(true, false, {
-      level: this.level + 1
+      level: this.level + 1,
+      heroSelected: this.heroSelected
     });
   }, this);
 };
